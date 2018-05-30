@@ -5,7 +5,7 @@
  */
 'use strict';
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 const Audit = require('../../audits/speed-index.js');
 const assert = require('assert');

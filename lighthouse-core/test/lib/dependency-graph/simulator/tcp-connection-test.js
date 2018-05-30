@@ -10,7 +10,7 @@ const TcpConnection = require('../../../../lib/dependency-graph/simulator/tcp-co
 
 const assert = require('assert');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 describe('DependencyGraph/Simulator/TcpConnection', () => {
   describe('#constructor', () => {
     it('should create the connection', () => {

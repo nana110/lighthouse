@@ -10,7 +10,7 @@ const fs = require('fs');
 const assert = require('assert');
 
 
-/* eslint-env mocha */
+/* eslint-env jest */
 describe('traceParser parser', () => {
   it('returns preact trace data the same as JSON.parse', (done) => {
     const filename = `${__dirname}/../../fixtures/traces/progressive-app-m60.json`;

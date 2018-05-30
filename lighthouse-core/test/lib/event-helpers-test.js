@@ -10,7 +10,7 @@ const assert = require('assert');
 
 const eventListeners = require('../fixtures/page-level-event-listeners.json');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 describe('event helpers', () => {
   describe('addFormattedCodeSnippet()', function() {

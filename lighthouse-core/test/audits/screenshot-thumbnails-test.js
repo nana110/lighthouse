@@ -14,7 +14,7 @@ const ScreenshotThumbnailsAudit = require('../../audits/screenshot-thumbnails');
 const pwaTrace = require('../fixtures/traces/progressive-app-m60.json');
 const pwaDevtoolsLog = require('../fixtures/traces/progressive-app-m60.devtools.log.json');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 describe('Screenshot thumbnails', () => {
   let computedArtifacts;

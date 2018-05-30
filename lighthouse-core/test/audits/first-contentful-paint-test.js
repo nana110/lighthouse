@@ -13,7 +13,7 @@ const options = Audit.defaultOptions;
 const pwaTrace = require('../fixtures/traces/progressive-app-m60.json');
 const pwaDevtoolsLog = require('../fixtures/traces/progressive-app-m60.devtools.log.json');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 describe('Performance: first-contentful-paint audit', () => {
   it('evaluates valid input correctly', async () => {

@@ -9,7 +9,7 @@ const NetworkRecorder = require('../../lib/network-recorder');
 const assert = require('assert');
 const devtoolsLogItems = require('../fixtures/artifacts/perflog/defaultPass.devtoolslog.json');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 describe('network recorder', function() {
   it('recordsFromLogs expands into records', function() {
     assert.equal(devtoolsLogItems.length, 555);

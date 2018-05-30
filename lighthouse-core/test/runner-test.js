@@ -17,7 +17,7 @@ const path = require('path');
 const sinon = require('sinon');
 const rimraf = require('rimraf');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 describe('Runner', () => {
   const saveArtifactsSpy = sinon.spy(assetSaver, 'saveArtifacts');

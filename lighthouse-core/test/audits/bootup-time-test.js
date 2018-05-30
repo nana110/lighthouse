@@ -5,7 +5,7 @@
  */
 'use strict';
 
-/* eslint-env mocha */
+/* eslint-env jest */
 const BootupTime = require('../../audits/bootup-time.js');
 const Runner = require('../../runner.js');
 const assert = require('assert');

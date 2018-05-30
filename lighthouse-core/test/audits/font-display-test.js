@@ -9,7 +9,7 @@ const WebInspector = require('../../lib/web-inspector');
 const Audit = require('../../audits/font-display.js');
 const assert = require('assert');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 const openSansFont = {
   display: 'auto',
   family: 'open Sans',

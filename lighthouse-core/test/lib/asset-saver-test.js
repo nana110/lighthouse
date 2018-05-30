@@ -24,7 +24,7 @@ function assertTraceEventsEqual(traceEventsA, traceEventsB) {
   });
 }
 
-/* eslint-env mocha */
+/* eslint-env jest */
 describe('asset-saver helper', () => {
   describe('saves files', function() {
     beforeAll(() => {

@@ -9,7 +9,7 @@ const KB = 1024;
 const UnminifiedCssAudit = require('../../../audits/byte-efficiency/unminified-css');
 const assert = require('assert');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 const _resourceType = {_name: 'stylesheet'};
 describe('Page uses optimized css', () => {

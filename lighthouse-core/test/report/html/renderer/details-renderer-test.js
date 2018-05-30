@@ -16,7 +16,7 @@ const DetailsRenderer = require('../../../../report/html/renderer/details-render
 const TEMPLATE_FILE = fs.readFileSync(__dirname +
     '/../../../../report/html/templates.html', 'utf8');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 describe('DetailsRenderer', () => {
   let renderer;

@@ -12,7 +12,7 @@ const fixtureData = require('../../fixtures/page-level-event-listeners.json');
 
 const URL = 'https://example.com';
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 describe('Page does not use mutation events', () => {
   it('passes when mutation events are not used', () => {

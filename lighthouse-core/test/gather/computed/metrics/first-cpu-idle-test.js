@@ -17,7 +17,7 @@ const redirectTrace = require('../../../fixtures/traces/site-with-redirect.json'
 
 const assert = require('assert');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 describe('FirstInteractive computed artifact:', () => {
   let computedArtifacts;
   let trace;

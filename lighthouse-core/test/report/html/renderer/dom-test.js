@@ -14,7 +14,7 @@ const DOM = require('../../../../report/html/renderer/dom.js');
 const TEMPLATE_FILE = fs.readFileSync(__dirname +
     '/../../../../report/html/templates.html', 'utf8');
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 describe('DOM', () => {
   let dom;

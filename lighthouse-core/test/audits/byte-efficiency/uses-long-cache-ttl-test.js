@@ -10,7 +10,7 @@ const assert = require('assert');
 const WebInspector = require('../../../lib/web-inspector');
 const options = CacheHeadersAudit.defaultOptions;
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 function networkRecord(options = {}) {
   const headers = [];

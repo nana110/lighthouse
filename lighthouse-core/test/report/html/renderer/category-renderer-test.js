@@ -5,7 +5,7 @@
  */
 'use strict';
 
-/* eslint-env mocha, browser */
+/* eslint-env jest, browser */
 
 const assert = require('assert');
 const fs = require('fs');

@@ -6,6 +6,14 @@
 'use strict';
 
 module.exports = {
+  collectCoverage: true,
+  coverageReporters: ["none"],
+  collectCoverageFrom: [
+    '**/lighthouse-core/**/*.js',
+    '**/lighthouse-cli/**/*.js',
+    '!**/test/',
+    '!**/scripts/',
+  ],
   testEnvironment: 'node',
   testMatch: [
     '**/lighthouse-core/**/*-test.js',

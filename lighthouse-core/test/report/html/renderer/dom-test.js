@@ -19,13 +19,13 @@ const TEMPLATE_FILE = fs.readFileSync(__dirname +
 describe('DOM', () => {
   let dom;
 
-  before(() => {
+  beforeAll(() => {
     global.URL = URL;
     const document = jsdom.jsdom(TEMPLATE_FILE);
     dom = new DOM(document);
   });
 
-  after(() => {
+  afterAll(() => {
     global.URL = undefined;
   });
 

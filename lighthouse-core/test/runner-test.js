@@ -48,7 +48,7 @@ describe('Runner', () => {
     const artifactsPath = '.tmp/test_artifacts';
     const resolvedPath = path.resolve(process.cwd(), artifactsPath);
 
-    after(() => {
+    afterAll(() => {
       rimraf.sync(resolvedPath);
     });
 

@@ -43,7 +43,7 @@ describe('Performance: bootup-time audit', () => {
       assert.ok(output.details.items.length < Object.keys(output.extendedInfo.value).length,
           'Items below threshold were not filtered out');
     });
-  }).timeout(10000);
+  }, 10000);
 
   it('should compute the correct values when simulated', async () => {
     const artifacts = Object.assign({

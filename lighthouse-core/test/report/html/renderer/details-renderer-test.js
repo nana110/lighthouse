@@ -21,7 +21,7 @@ const TEMPLATE_FILE = fs.readFileSync(__dirname +
 describe('DetailsRenderer', () => {
   let renderer;
 
-  before(() => {
+  beforeAll(() => {
     global.URL = URL;
     global.Util = Util;
     const document = jsdom.jsdom(TEMPLATE_FILE);
@@ -29,7 +29,7 @@ describe('DetailsRenderer', () => {
     renderer = new DetailsRenderer(dom);
   });
 
-  after(() => {
+  afterAll(() => {
     global.URL = undefined;
     global.Util = undefined;
   });

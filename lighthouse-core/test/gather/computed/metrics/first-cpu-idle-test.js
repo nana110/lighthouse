@@ -77,14 +77,14 @@ describe('FirstInteractive computed artifact:', () => {
     let originalMainThreadEventsFunc;
     let computeObservedMetric;
 
-    before(() => {
+    beforeAll(() => {
       originalMainThreadEventsFunc = TracingProcessor.getMainThreadTopLevelEvents;
       TracingProcessor.getMainThreadTopLevelEvents = () => mainThreadEvents
           .map(evt => Object.assign(evt, {duration: evt.end - evt.start}));
       computeObservedMetric = traceOfTab => firstCPUIdle.computeObservedMetric({traceOfTab});
     });
 
-    after(() => {
+    afterAll(() => {
       TracingProcessor.getMainThreadTopLevelEvents = originalMainThreadEventsFunc;
     });
 

@@ -44,7 +44,7 @@ describe('CLI run', function() {
 
       fs.unlinkSync(filename);
     });
-  }).timeout(20 * 1000);
+  }, 20 * 1000);
 });
 
 describe('flag coercing', () => {

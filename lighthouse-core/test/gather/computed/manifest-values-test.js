@@ -28,7 +28,6 @@ function noUrlManifestParser(manifestSrc) {
   return manifestParser(manifestSrc, EXAMPLE_MANIFEST_URL, EXAMPLE_DOC_URL);
 }
 
-/* eslint-env jest */
 describe('ManifestValues computed artifact', () => {
   it('reports a parse failure if page had no manifest', async () => {
     const manifestArtifact = null;

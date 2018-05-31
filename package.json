@@ -43,10 +43,10 @@
     "viewer-unit": "yarn unit-viewer",
     "watch": "yarn unit-core --watch",
 
-    "unit:silentcoverage": "nyc --silent --clean yarn unit:ci && nyc report --reporter text-lcov > unit-coverage.lcov",
-    "coverage": "nyc --clean yarn unit:ci && nyc report --reporter html",
-    "smoke:silentcoverage": "nyc --silent --clean yarn smoke && nyc report --reporter text-lcov > smoke-coverage.lcov",
-    "coverage:smoke": "nyc --clean yarn smoke && nyc report --reporter html",
+    "unit:silentcoverage": "nyc --silent yarn unit:ci && nyc report --reporter text-lcov > unit-coverage.lcov",
+    "coverage": "nyc yarn unit:ci && nyc report --reporter html",
+    "smoke:silentcoverage": "nyc --silent yarn smoke && nyc report --reporter text-lcov > smoke-coverage.lcov",
+    "coverage:smoke": "nyc yarn smoke && nyc report --reporter html",
     "coveralls": "cat unit-coverage.lcov | coveralls",
     "codecov": "codecov -f unit-coverage.lcov -F unit && codecov -f smoke-coverage.lcov -F smoke",
 

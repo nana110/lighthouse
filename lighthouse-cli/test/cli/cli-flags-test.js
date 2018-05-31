@@ -7,11 +7,11 @@
 
 /* eslint-env jest */
 const assert = require('assert');
-
-require('../../bin.js');
+const getFlags = require('../../cli-flags.js').getFlags;
 
 describe('CLI bin', function() {
   it('all options should have descriptions', () => {
+    getFlags();
     const yargs = require('yargs');
 
     const optionGroups = yargs.getGroups();

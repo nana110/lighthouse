@@ -7,7 +7,7 @@
 
 /* eslint-env jest */
 const assert = require('assert');
-const getFlags = require('../../cli-flags.js').getFlags;
+const getFlags = require('../../cli-flags').getFlags;
 
 describe('CLI bin', function() {
   it('all options should have descriptions', () => {

@@ -11,7 +11,7 @@ const getFlags = require('../../cli-flags').getFlags;
 
 describe('CLI bin', function() {
   it('all options should have descriptions', () => {
-    getFlags();
+    getFlags('chrome://version');
     const yargs = require('yargs');
 
     const optionGroups = yargs.getGroups();

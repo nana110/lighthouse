@@ -159,7 +159,8 @@ class UsesRelPreloadAudit extends Audit {
     /** @type {Set<string>} */
     const urls = new Set();
     for (const networkRecord of criticalRequests) {
-      if (!networkRecord._isLinkPreload && networkRecord.protocol !== 'data') {
+      if (!networkRecord._isLinkPreload && networkRecord.protocol !== 'data'
+          && networkRecord.protocol !== 'blob') {
         urls.add(networkRecord._url);
       }
     }

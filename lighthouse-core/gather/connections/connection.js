@@ -144,9 +144,13 @@ Connection.prototype.on = function on(eventName, cb) {
  * Looser-typed internal implementation of `Connection.sendCommand` which is
  * strictly typed externally on exposed Connection interface. See
  * `Driver.sendCommand` for explanation.
- * @type {(this: Connection, method: keyof LH.CrdpCommands, params?: CommandParamsTypes, cmdOpts?: {silent?: boolean}) => Promise<CommandReturnTypes>}
+ * @this {Connection}
+ * @param {keyof LH.CrdpCommands} method
+ * @param {CommandParamsTypes=} params,
+ * @param {{silent?: boolean}=} cmdOpts
+ * @return {Promise<CommandReturnTypes>}
  */
-function _sendCommand(method, params = {}, cmdOpts = {}) {
+function _sendCommand(method, params, cmdOpts = {}) {
   /* eslint-disable no-invalid-this */
   log.formatProtocol('method => browser', {method, params}, 'verbose');
   const id = ++this._lastCommandId;

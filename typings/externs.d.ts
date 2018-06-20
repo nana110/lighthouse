@@ -141,6 +141,7 @@ declare global {
       name: string;
       cat: string;
       args: {
+        snapshot?: string;
         data?: {
           frames?: {
             frame: string;

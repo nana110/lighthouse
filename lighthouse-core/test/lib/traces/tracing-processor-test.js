@@ -9,6 +9,7 @@ const assert = require('assert');
 
 /* eslint-env mocha */
 const TracingProcessor = require('../../../lib/traces/tracing-processor');
+const taskGroups = require('../../../lib/task-groups').taskGroups;
 const pwaTrace = require('../../fixtures/traces/progressive-app.json');
 const defaultPercentiles = [0, 0.25, 0.5, 0.75, 0.9, 0.99, 1];
 
@@ -202,6 +203,9 @@ describe('TracingProcessor lib', () => {
       assert.equal(durations.filter(dur => isNaN(dur)).length, 0, 'NaN found');
       assert.equal(durations.length, 645);
 
+      const sum = durations.reduce((a, b) => a + b);
+      assert.equal(Math.round(sum), 386);
+
       assert.equal(getDurationFromIndex(50), 0.01);
       assert.equal(getDurationFromIndex(300), 0.04);
       assert.equal(getDurationFromIndex(400), 0.07);
@@ -236,6 +240,77 @@ describe('TracingProcessor lib', () => {
 
     afterEach(() => {
       TracingProcessor._riskPercentiles = oldFn;
+    });
+  });
+
+  describe('#getMainThreadTasks', () => {
+    it('should get all main thread tasks from a trace', () => {
+      const tasks = TracingProcessor.getMainThreadTasks(pwaTrace);
+      const toplevelTasks = tasks.filter(task => !task.parent);
+      assert.equal(tasks.length, 2305);
+      assert.equal(toplevelTasks.length, 296);
+
+      // Sanity check the reachability of tasks and summation of selfTime
+      const allTasks = [];
+      const queue = toplevelTasks;
+      let totalTime = 0;
+      let totalTopLevelTime = 0;
+      while (queue.length) {
+        const task = queue.shift();
+        totalTime += task.selfTime;
+        totalTopLevelTime += TracingProcessor.isScheduleableTask(task.event) ? task.duration : 0;
+        allTasks.push(task);
+        queue.push(...task.children);
+      }
+
+      assert.equal(allTasks.length, 2305);
+      assert.equal(Math.round(totalTopLevelTime), 386);
+      assert.equal(Math.round(totalTime), 396);
+    });
+
+    it('should compute parent/child correctly', () => {
+      const baseTs = 1241250325;
+      const events = [
+        {ph: 'I', name: 'TracingStartedInPage', ts: baseTs},
+        {ph: 'X', name: 'TaskA', ts: baseTs, dur: 100e3},
+        {ph: 'B', name: 'TaskB', ts: baseTs + 5e3},
+        {ph: 'X', name: 'TaskC', ts: baseTs + 10e3, dur: 30e3},
+        {ph: 'E', name: 'TaskB', ts: baseTs + 55e3},
+      ];
+
+      events.forEach(evt => evt.args = {data: {}});
+
+      const tasks = TracingProcessor.getMainThreadTasks(events);
+      assert.equal(tasks.length, 3);
+
+      const taskA = tasks.find(task => task.event.name === 'TaskA');
+      const taskB = tasks.find(task => task.event.name === 'TaskB');
+      const taskC = tasks.find(task => task.event.name === 'TaskC');
+      assert.deepStrictEqual(taskA, {
+        parent: undefined,
+        attributableURL: undefined,
+
+        children: [taskB],
+        event: events[1],
+        startTime: 0,
+        endTime: 100,
+        duration: 100,
+        selfTime: 50,
+        group: taskGroups.Other,
+      });
+
+      assert.deepStrictEqual(taskB, {
+        parent: taskA,
+        attributableURL: undefined,
+
+        children: [taskC],
+        event: events[2],
+        startTime: 5,
+        endTime: 55,
+        duration: 50,
+        selfTime: 20,
+        group: taskGroups.Other,
+      });
     });
   });
 });

@@ -113,7 +113,6 @@ declare global {
 
     export interface ComputedArtifacts {
       requestCriticalRequestChains(data: {devtoolsLog: DevtoolsLog, URL: Artifacts['URL']}): Promise<Artifacts.CriticalRequestNode>;
-      requestDevtoolsTimelineModel(trace: Trace): Promise<Artifacts.DevtoolsTimelineModel>;
       requestLoadSimulator(data: {devtoolsLog: DevtoolsLog, settings: Config.Settings}): Promise<LanternSimulator>;
       requestMainResource(data: {devtoolsLog: DevtoolsLog, URL: Artifacts['URL']}): Promise<WebInspector.NetworkRequest>;
       requestManifestValues(manifest: LH.Artifacts['Manifest']): Promise<LH.Artifacts.ManifestValues>;
@@ -301,27 +300,6 @@ declare global {
           request: WebInspector.NetworkRequest;
           children: CriticalRequestNode;
         }
-      }
-
-      export interface DevtoolsTimelineFilmStripModel {
-        frames(): Array<{
-          imageDataPromise(): Promise<string>;
-          timestamp: number;
-        }>;
-      }
-
-      export interface DevtoolsTimelineModelNode {
-        children: Map<string, DevtoolsTimelineModelNode>;
-        selfTime: number;
-        // SDK.TracingModel.Event
-        event: {
-          name: string;
-        };
-      }
-
-      export interface DevtoolsTimelineModel {
-        filmStripModel(): Artifacts.DevtoolsTimelineFilmStripModel;
-        bottomUpGroupBy(grouping: string): DevtoolsTimelineModelNode;
       }
 
       export type ManifestValueCheckID = 'hasStartUrl'|'hasIconsAtLeast192px'|'hasIconsAtLeast512px'|'hasPWADisplayValue'|'hasBackgroundColor'|'hasThemeColor'|'hasShortName'|'hasName'|'shortNameLength';

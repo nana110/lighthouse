@@ -11,9 +11,11 @@
 'use strict';
 
 const Audit = require('./audit');
+const TraceProcessor = require('../lib/traces/tracing-processor');
 const Util = require('../report/html/renderer/util');
-// We group all trace events into groups to show a highlevel breakdown of the page
-const {taskToGroup} = require('../lib/task-groups');
+const {taskGroups} = require('../lib/task-groups');
+
+/** @typedef {import('../lib/traces/tracing-processor.js').TaskNode} TaskNode */
 
 class MainThreadWorkBreakdown extends Audit {
   /**
@@ -43,15 +45,17 @@ class MainThreadWorkBreakdown extends Audit {
   }
 
   /**
-   * @param {LH.Artifacts.DevtoolsTimelineModel} timelineModel
+   * @param {TaskNode[]} tasks
+   * @param {number} multiplier
    * @return {Map<string, number>}
    */
-  static getExecutionTimingsByCategory(timelineModel) {
-    const bottomUpByName = timelineModel.bottomUpGroupBy('EventName');
-
+  static getExecutionTimingsByGroup(tasks, multiplier) {
+    /** @type {Map<string, number>} */
     const result = new Map();
-    bottomUpByName.children.forEach((event, eventName) =>
-      result.set(eventName, event.selfTime));
+
+    for (const task of tasks) {
+      result.set(task.group.id, (result.get(task.group.id) || 0) + task.selfTime * multiplier);
+    }
 
     return result;
   }
@@ -65,40 +69,33 @@ class MainThreadWorkBreakdown extends Audit {
     const settings = context.settings || {};
     const trace = artifacts.traces[MainThreadWorkBreakdown.DEFAULT_PASS];
 
-    const devtoolsTimelineModel = await artifacts.requestDevtoolsTimelineModel(trace);
-    const executionTimings = MainThreadWorkBreakdown.getExecutionTimingsByCategory(
-      devtoolsTimelineModel
-    );
-    let totalExecutionTime = 0;
-
+    const tasks = TraceProcessor.getMainThreadTasks(trace.traceEvents);
     const multiplier = settings.throttlingMethod === 'simulate' ?
       settings.throttling.cpuSlowdownMultiplier : 1;
 
-    const extendedInfo = {};
-    const categoryTotals = {};
-    const results = Array.from(executionTimings).map(([eventName, duration]) => {
-      duration *= multiplier;
-      totalExecutionTime += duration;
-      extendedInfo[eventName] = duration;
-      const groupName = taskToGroup[eventName];
+    const executionTimings = MainThreadWorkBreakdown.getExecutionTimingsByGroup(tasks, multiplier);
 
-      const categoryTotal = categoryTotals[groupName] || 0;
-      categoryTotals[groupName] = categoryTotal + duration;
+    let totalExecutionTime = 0;
+    const categoryTotals = {};
+    const results = Array.from(executionTimings).map(([groupId, duration]) => {
+      totalExecutionTime += duration;
+
+      const categoryTotal = categoryTotals[groupId] || 0;
+      categoryTotals[groupId] = categoryTotal + duration;
 
       return {
-        category: eventName,
-        group: groupName,
+        group: groupId,
+        groupLabel: taskGroups[groupId].label,
         duration: duration,
       };
     });
 
     const headings = [
-      {key: 'group', itemType: 'text', text: 'Category'},
-      {key: 'category', itemType: 'text', text: 'Work'},
-      {key: 'duration', itemType: 'ms', granularity: 1, text: 'Time spent'},
+      {key: 'groupLabel', itemType: 'text', text: 'Category'},
+      {key: 'duration', itemType: 'ms', granularity: 1, text: 'Time Spent'},
     ];
-    // @ts-ignore - stableSort added to Array by WebInspector
-    results.stableSort((a, b) => categoryTotals[b.group] - categoryTotals[a.group]);
+
+    results.sort((a, b) => categoryTotals[b.group] - categoryTotals[a.group]);
     const tableDetails = MainThreadWorkBreakdown.makeTableDetails(headings, results);
 
     const score = Audit.computeLogNormalScore(
@@ -112,9 +109,6 @@ class MainThreadWorkBreakdown extends Audit {
       rawValue: totalExecutionTime,
       displayValue: [Util.MS_DISPLAY_VALUE, totalExecutionTime],
       details: tableDetails,
-      extendedInfo: {
-        value: extendedInfo,
-      },
     };
   }
 }

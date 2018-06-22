@@ -7,7 +7,8 @@
 
 const MetricArtifact = require('./lantern-metric');
 const Node = require('../../../lib/dependency-graph/node');
-const CPUNode = require('../../../lib/dependency-graph/cpu-node'); // eslint-disable-line no-unused-vars
+
+/** @typedef {Node.NodeType} NodeType */
 
 class SpeedIndex extends MetricArtifact {
   get name() {
@@ -29,16 +30,16 @@ class SpeedIndex extends MetricArtifact {
   }
 
   /**
-   * @param {Node} dependencyGraph
-   * @return {Node}
+   * @param {NodeType} dependencyGraph
+   * @return {NodeType}
    */
   getOptimisticGraph(dependencyGraph) {
     return dependencyGraph;
   }
 
   /**
-   * @param {Node} dependencyGraph
-   * @return {Node}
+   * @param {NodeType} dependencyGraph
+   * @return {NodeType}
    */
   getPessimisticGraph(dependencyGraph) {
     return dependencyGraph;
@@ -97,8 +98,7 @@ class SpeedIndex extends MetricArtifact {
     for (const [node, timing] of nodeTimings.entries()) {
       if (node.type !== Node.TYPES.CPU) continue;
 
-      const cpuNode = /** @type {CPUNode} */ (node);
-      if (cpuNode.childEvents.some(x => x.name === 'Layout')) {
+      if (node.childEvents.some(x => x.name === 'Layout')) {
         const timingWeight = Math.max(Math.log2(timing.endTime - timing.startTime), 0);
         layoutWeights.push({time: timing.endTime, weight: timingWeight});
       }

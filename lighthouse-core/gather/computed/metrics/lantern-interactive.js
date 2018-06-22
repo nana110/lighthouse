@@ -7,9 +7,9 @@
 
 const MetricArtifact = require('./lantern-metric');
 const Node = require('../../../lib/dependency-graph/node');
-const CPUNode = require('../../../lib/dependency-graph/cpu-node'); // eslint-disable-line no-unused-vars
-const NetworkNode = require('../../../lib/dependency-graph/network-node'); // eslint-disable-line no-unused-vars
 const WebInspector = require('../../../lib/web-inspector');
+
+/** @typedef {Node.NodeType} NodeType */
 
 // Any CPU task of 20 ms or more will end up being a critical long task on mobile
 const CRITICAL_LONG_TASK_THRESHOLD = 20;
@@ -31,8 +31,8 @@ class Interactive extends MetricArtifact {
   }
 
   /**
-   * @param {Node} dependencyGraph
-   * @return {Node}
+   * @param {NodeType} dependencyGraph
+   * @return {NodeType}
    */
   getOptimisticGraph(dependencyGraph) {
     // Adjust the critical long task threshold for microseconds
@@ -41,25 +41,24 @@ class Interactive extends MetricArtifact {
     return dependencyGraph.cloneWithRelationships(node => {
       // Include everything that might be a long task
       if (node.type === Node.TYPES.CPU) {
-        return /** @type {CPUNode} */ (node).event.dur > minimumCpuTaskDuration;
+        return node.event.dur > minimumCpuTaskDuration;
       }
 
-      const asNetworkNode = /** @type {NetworkNode} */ (node);
       // Include all scripts and high priority requests, exclude all images
-      const isImage = asNetworkNode.record._resourceType === WebInspector.resourceTypes.Image;
-      const isScript = asNetworkNode.record._resourceType === WebInspector.resourceTypes.Script;
+      const isImage = node.record._resourceType === WebInspector.resourceTypes.Image;
+      const isScript = node.record._resourceType === WebInspector.resourceTypes.Script;
       return (
         !isImage &&
         (isScript ||
-          asNetworkNode.record.priority() === 'High' ||
-          asNetworkNode.record.priority() === 'VeryHigh')
+          node.record.priority() === 'High' ||
+          node.record.priority() === 'VeryHigh')
       );
     });
   }
 
   /**
-   * @param {Node} dependencyGraph
-   * @return {Node}
+   * @param {NodeType} dependencyGraph
+   * @return {NodeType}
    */
   getPessimisticGraph(dependencyGraph) {
     return dependencyGraph;

@@ -12,6 +12,8 @@ const TcpConnection = require('./tcp-connection');
 const ConnectionPool = require('./connection-pool');
 const mobile3G = require('../../../config/constants').throttling.mobile3G;
 
+/** @typedef {Node.NodeType} NodeType */
+
 // see https://cs.chromium.org/search/?q=kDefaultMaxNumDelayableRequestsPerClient&sq=package:chromium&type=cs
 const DEFAULT_MAXIMUM_CONCURRENT_REQUESTS = 10;
 // layout tasks tend to be less CPU-bound and do not experience the same increase in duration
@@ -59,7 +61,7 @@ class Simulator {
 
     // Properties reset on every `.simulate` call but duplicated here for type checking
     this._flexibleOrdering = false;
-    /** @type {Map<Node, NodeTimingIntermediate>} */
+    /** @type {Map<NodeType, NodeTimingIntermediate>} */
     this._nodeTimings = new Map();
     /** @type {Map<string, number>} */
     this._numberInProgressByType = new Map();
@@ -69,14 +71,14 @@ class Simulator {
   }
 
   /**
-   * @param {Node} graph
+   * @param {NodeType} graph
    */
   _initializeConnectionPool(graph) {
     /** @type {LH.WebInspector.NetworkRequest[]} */
     const records = [];
     graph.getRootNode().traverse(node => {
       if (node.type === Node.TYPES.NETWORK) {
-        records.push(/** @type {NetworkNode} */ (node).record);
+        records.push(node.record);
       }
     });
 
@@ -105,7 +107,7 @@ class Simulator {
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    * @param {NodeTimingIntermediate} values
    */
   _setTimingData(node, values) {
@@ -115,7 +117,7 @@ class Simulator {
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    * @return {NodeTimingIntermediate}
    */
   _getTimingData(node) {
@@ -125,7 +127,7 @@ class Simulator {
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    * @param {number} queuedTime
    */
   _markNodeAsReadyToStart(node, queuedTime) {
@@ -135,7 +137,7 @@ class Simulator {
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    * @param {number} startTime
    */
   _markNodeAsInProgress(node, startTime) {
@@ -146,7 +148,7 @@ class Simulator {
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    * @param {number} endTime
    */
   _markNodeAsComplete(node, endTime) {
@@ -177,7 +179,7 @@ class Simulator {
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    * @param {number} totalElapsedTime
    */
   _startNodeIfPossible(node, totalElapsedTime) {
@@ -193,13 +195,12 @@ class Simulator {
 
     if (node.type !== Node.TYPES.NETWORK) throw new Error('Unsupported');
 
-    const networkNode = /** @type {NetworkNode} */ (node);
     // If a network request is cached, we can always start it, so skip the connection checks
-    if (!networkNode.fromDiskCache) {
+    if (!node.fromDiskCache) {
       // Start a network request if we're not at max requests and a connection is available
       const numberOfActiveRequests = this._numberInProgress(node.type);
       if (numberOfActiveRequests >= this._maximumConcurrentRequests) return;
-      const connection = this._acquireConnection(networkNode.record);
+      const connection = this._acquireConnection(node.record);
       if (!connection) return;
     }
 
@@ -223,14 +224,14 @@ class Simulator {
 
   /**
    * Estimates the number of milliseconds remaining given current condidtions before the node is complete.
-   * @param {Node} node
+   * @param {NodeType} node
    * @return {number}
    */
   _estimateTimeRemaining(node) {
     if (node.type === Node.TYPES.CPU) {
-      return this._estimateCPUTimeRemaining(/** @type {CpuNode} */ (node));
+      return this._estimateCPUTimeRemaining(node);
     } else if (node.type === Node.TYPES.NETWORK) {
-      return this._estimateNetworkTimeRemaining(/** @type {NetworkNode} */ (node));
+      return this._estimateNetworkTimeRemaining(node);
     } else {
       throw new Error('Unsupported');
     }
@@ -298,7 +299,7 @@ class Simulator {
 
   /**
    * Given a time period, computes the progress toward completion that the node made durin that time.
-   * @param {Node} node
+   * @param {NodeType} node
    * @param {number} timePeriodLength
    * @param {number} totalElapsedTime
    */
@@ -306,9 +307,7 @@ class Simulator {
     const timingData = this._getTimingData(node);
     const isFinished = timingData.estimatedTimeElapsed === timePeriodLength;
 
-    const networkNode = /** @type {NetworkNode} */ (node);
-
-    if (node.type === Node.TYPES.CPU || networkNode.fromDiskCache) {
+    if (node.type === Node.TYPES.CPU || node.fromDiskCache) {
       return isFinished
         ? this._markNodeAsComplete(node, totalElapsedTime)
         : (timingData.timeElapsed += timePeriodLength);
@@ -316,7 +315,7 @@ class Simulator {
 
     if (node.type !== Node.TYPES.NETWORK) throw new Error('Unsupported');
 
-    const record = networkNode.record;
+    const record = node.record;
     // If we're updating the progress, we already acquired a connection for this record, definitely non-null
     const connection = /** @type {TcpConnection} */ (this._acquireConnection(record));
     const calculation = connection.simulateDownloadUntil(
@@ -342,7 +341,7 @@ class Simulator {
   }
 
   _computeFinalNodeTimings() {
-    /** @type {Map<Node, LH.Gatherer.Simulation.NodeTiming>} */
+    /** @type {Map<NodeType, LH.Gatherer.Simulation.NodeTiming>} */
     const nodeTimings = new Map();
     for (const [node, timing] of this._nodeTimings) {
       nodeTimings.set(node, {
@@ -371,7 +370,7 @@ class Simulator {
    * wait around for a warm connection to be available if the original record was fetched on a warm
    * connection).
    *
-   * @param {Node} graph
+   * @param {NodeType} graph
    * @param {{flexibleOrdering?: boolean, label?: string}=} options
    * @return {LH.Gatherer.Simulation.Result}
    */

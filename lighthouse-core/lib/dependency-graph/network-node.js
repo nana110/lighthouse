@@ -14,12 +14,10 @@ class NetworkNode extends Node {
    */
   constructor(networkRecord) {
     super(networkRecord.requestId);
+    /** @private */
     this._record = networkRecord;
   }
 
-  /**
-   * @return {string}
-   */
   get type() {
     return Node.TYPES.NETWORK;
   }

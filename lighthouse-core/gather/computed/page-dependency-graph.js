@@ -12,7 +12,7 @@ const NetworkAnalyzer = require('../../lib/dependency-graph/simulator/network-an
 const TracingProcessor = require('../../lib/traces/tracing-processor');
 const WebInspector = require('../../lib/web-inspector');
 
-const Node = require('../../lib/dependency-graph/node.js'); // eslint-disable-line no-unused-vars
+/** @typedef {import('../../lib/dependency-graph/node.js').NodeType} NodeType */
 
 // Tasks smaller than 10 ms have minimal impact on simulation
 const MINIMUM_TASK_DURATION_OF_INTEREST = 10;
@@ -114,7 +114,7 @@ class PageDependencyGraphArtifact extends ComputedArtifact {
   }
 
   /**
-   * @param {Node} rootNode
+   * @param {NodeType} rootNode
    * @param {NetworkNodeOutput} networkNodeOutput
    */
   static linkNetworkNodes(rootNode, networkNodeOutput) {
@@ -145,7 +145,7 @@ class PageDependencyGraphArtifact extends ComputedArtifact {
   }
 
   /**
-   * @param {Node} rootNode
+   * @param {NodeType} rootNode
    * @param {NetworkNodeOutput} networkNodeOutput
    * @param {Array<CPUNode>} cpuNodes
    */
@@ -261,7 +261,7 @@ class PageDependencyGraphArtifact extends ComputedArtifact {
   /**
    * @param {LH.Artifacts.TraceOfTab} traceOfTab
    * @param {Array<LH.WebInspector.NetworkRequest>} networkRecords
-   * @return {Node}
+   * @return {NodeType}
    */
   static createGraph(traceOfTab, networkRecords) {
     const networkNodeOutput = PageDependencyGraphArtifact.getNetworkNodeOutput(networkRecords);
@@ -290,7 +290,7 @@ class PageDependencyGraphArtifact extends ComputedArtifact {
 
   /**
    *
-   * @param {Node} rootNode
+   * @param {NodeType} rootNode
    */
   static printGraph(rootNode, widthInCharacters = 100) {
     /** @param {string} str @param {number} target */
@@ -298,7 +298,7 @@ class PageDependencyGraphArtifact extends ComputedArtifact {
       return str + padChar.repeat(Math.max(target - str.length, 0));
     }
 
-    /** @type {Array<Node>} */
+    /** @type {Array<NodeType>} */
     const nodes = [];
     rootNode.traverse(node => nodes.push(node));
     nodes.sort((a, b) => a.startTime - b.startTime);
@@ -323,7 +323,7 @@ class PageDependencyGraphArtifact extends ComputedArtifact {
   /**
    * @param {{trace: LH.Trace, devtoolsLog: LH.DevtoolsLog}} data
    * @param {LH.ComputedArtifacts} artifacts
-   * @return {Promise<Node>}
+   * @return {Promise<NodeType>}
    */
   async compute_(data, artifacts) {
     const trace = data.trace;

@@ -20,9 +20,6 @@ class CPUNode extends Node {
     this._childEvents = childEvents;
   }
 
-  /**
-   * @return {string}
-   */
   get type() {
     return Node.TYPES.CPU;
   }

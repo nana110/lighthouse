@@ -6,6 +6,12 @@
 'use strict';
 
 /**
+ * A union of all types derived from Node, allowing type check disrimination
+ * based on `node.type`. If a new node type is created, it should be added here.
+ * @typedef {import('./cpu-node.js') | import('./network-node.js')} NodeType
+ */
+
+/**
  * @fileoverview This class encapsulates logic for handling resources and tasks used to model the
  * execution dependency graph of the page. A node has a unique identifier and can depend on other
  * nodes/be depended on. The construction of the graph maintains some important invariants that are
@@ -24,9 +30,9 @@ class Node {
   constructor(id) {
     this._id = id;
     this._isMainDocument = false;
-    /** @type {Node[]} */
+    /** @type {NodeType[]} */
     this._dependents = [];
-    /** @type {Node[]} */
+    /** @type {NodeType[]} */
     this._dependencies = [];
   }
 
@@ -38,7 +44,7 @@ class Node {
   }
 
   /**
-   * @return {string}
+   * @return {typeof Node.TYPES[keyof typeof Node.TYPES]}
    */
   get type() {
     throw new Error('Unimplemented');
@@ -73,14 +79,14 @@ class Node {
   }
 
   /**
-   * @return {Node[]}
+   * @return {NodeType[]}
    */
   getDependents() {
     return this._dependents.slice();
   }
 
   /**
-   * @return {Node[]}
+   * @return {NodeType[]}
    */
   getDependencies() {
     return this._dependencies.slice();
@@ -94,11 +100,10 @@ class Node {
   }
 
   /**
-   * @return {Node}
+   * @return {NodeType}
    */
   getRootNode() {
-    /** @type {Node} */
-    let rootNode = this;
+    let rootNode = /** @type {NodeType} */ (/** @type {Node} */ (this));
     while (rootNode._dependencies.length) {
       rootNode = rootNode._dependencies[0];
     }
@@ -107,40 +112,41 @@ class Node {
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    */
   addDependent(node) {
-    node.addDependency(this);
+    node.addDependency(/** @type {NodeType} */ (/** @type {Node} */ (this)));
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    */
   addDependency(node) {
     if (this._dependencies.includes(node)) {
       return;
     }
 
-    node._dependents.push(this);
+    node._dependents.push(/** @type {NodeType} */ (/** @type {Node} */ (this)));
     this._dependencies.push(node);
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    */
   removeDependent(node) {
-    node.removeDependency(this);
+    node.removeDependency(/** @type {NodeType} */ (/** @type {Node} */ (this)));
   }
 
   /**
-   * @param {Node} node
+   * @param {NodeType} node
    */
   removeDependency(node) {
     if (!this._dependencies.includes(node)) {
       return;
     }
 
-    node._dependents.splice(node._dependents.indexOf(this), 1);
+    const thisIndex = node._dependents.indexOf(/** @type {NodeType} */ (/** @type {Node} */(this)));
+    node._dependents.splice(thisIndex, 1);
     this._dependencies.splice(this._dependencies.indexOf(node), 1);
   }
 
@@ -152,10 +158,10 @@ class Node {
 
   /**
    * Clones the node's information without adding any dependencies/dependents.
-   * @return {Node}
+   * @return {NodeType}
    */
   cloneWithoutRelationships() {
-    const node = new Node(this.id);
+    const node = /** @type {NodeType} */ (new Node(this.id));
     node.setIsMainDocument(this._isMainDocument);
     return node;
   }
@@ -164,13 +170,13 @@ class Node {
    * Clones the entire graph connected to this node filtered by the optional predicate. If a node is
    * included by the predicate, all nodes along the paths between the two will be included. If the
    * node that was called clone is not included in the resulting filtered graph, the method will throw.
-   * @param {function(Node):boolean} [predicate]
-   * @return {Node}
+   * @param {function(NodeType):boolean} [predicate]
+   * @return {NodeType}
    */
   cloneWithRelationships(predicate) {
     const rootNode = this.getRootNode();
 
-    /** @type {function(Node): boolean} */
+    /** @type {function(NodeType): boolean} */
     let shouldIncludeNode = () => true;
     if (predicate) {
       const idsToInclude = new Set();
@@ -210,14 +216,13 @@ class Node {
   /**
    * Traverses all paths in the graph, calling iterator on each node visited. Decides which nodes to
    * visit with the getNext function.
-   * @param {function(Node,Node[])} iterator
-   * @param {function(Node):Node[]} getNext
+   * @param {function(NodeType, NodeType[])} iterator
+   * @param {function(NodeType): NodeType[]} getNext
    */
   _traversePaths(iterator, getNext) {
-    /** @type {Node[][]} */
-    const stack = [[this]];
+    const stack = [[/** @type {NodeType} */ (/** @type {Node} */ (this))]];
     while (stack.length) {
-      /** @type {Node[]} */
+      /** @type {NodeType[]} */
       // @ts-ignore - stack has length so it's guaranteed to have an item
       const path = stack.shift();
       const node = path[0];
@@ -233,8 +238,8 @@ class Node {
   /**
    * Traverses all connected nodes exactly once, calling iterator on each. Decides which nodes to
    * visit with the getNext function.
-   * @param {function(Node,Node[])} iterator
-   * @param {function(Node):Node[]} [getNext] Defaults to returning the dependents.
+   * @param {function(NodeType, NodeType[])} iterator
+   * @param {function(NodeType): NodeType[]} [getNext] Defaults to returning the dependents.
    */
   traverse(iterator, getNext) {
     if (!getNext) {
@@ -257,7 +262,7 @@ class Node {
 
   /**
    * Returns whether the given node has a cycle in its dependent graph by performing a DFS.
-   * @param {Node} node
+   * @param {NodeType} node
    * @param {'dependents'|'dependencies'|'both'} [direction]
    * @return {boolean}
    */
@@ -268,7 +273,7 @@ class Node {
     }
 
     const visited = new Set();
-    /** @type {Node[]} */
+    /** @type {NodeType[]} */
     const currentPath = [];
     const toVisit = [node];
     const depthAdded = new Map([[node, 0]]);
@@ -276,7 +281,7 @@ class Node {
     // Keep going while we have nodes to visit in the stack
     while (toVisit.length) {
       // Get the last node in the stack (DFS uses stack, not queue)
-      /** @type {Node} */
+      /** @type {NodeType} */
       // @ts-ignore - toVisit has length so it's guaranteed to have an item
       const currentNode = toVisit.pop();
 
@@ -308,9 +313,9 @@ class Node {
   }
 }
 
-Node.TYPES = {
+Node.TYPES = /** @type {{NETWORK: 'network', CPU: 'cpu'}} */({
   NETWORK: 'network',
   CPU: 'cpu',
-};
+});
 
 module.exports = Node;

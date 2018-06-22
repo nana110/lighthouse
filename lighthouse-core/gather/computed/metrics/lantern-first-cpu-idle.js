@@ -6,9 +6,6 @@
 'use strict';
 
 const Node = require('../../../lib/dependency-graph/node');
-const CPUNode = require('../../../lib/dependency-graph/cpu-node'); // eslint-disable-line no-unused-vars
-const NetworkNode = require('../../../lib/dependency-graph/network-node'); // eslint-disable-line no-unused-vars
-
 const FirstCPUIdle = require('./first-cpu-idle');
 const LanternInteractive = require('./lantern-interactive');
 

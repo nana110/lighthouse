@@ -220,7 +220,7 @@ class Node {
    * @param {function(NodeType): NodeType[]} getNext
    */
   _traversePaths(iterator, getNext) {
-    const stack = [[/** @type {NodeType} */ (/** @type {Node} */ (this))]];
+    const stack = [[/** @type {NodeType} */(/** @type {Node} */(this))]];
     while (stack.length) {
       /** @type {NodeType[]} */
       // @ts-ignore - stack has length so it's guaranteed to have an item

@@ -10,8 +10,18 @@ const TraceProcessor = require('../../lib/traces/tracing-processor');
 const {taskGroups, taskNameToGroup} = require('../../lib/task-groups');
 
 /**
- * @fileoverview This artifact converts the array of raw trace events into an array of hierarchical
- * tasks for bottom-up analysis. Each task will have its group/classification, start time, end time,
+ * @fileoverview
+ *
+ * This artifact converts the array of raw trace events into an array of hierarchical
+ * tasks for easier consumption and bottom-up analysis.
+ *
+ * Events are easily produced but difficult to consume. They're a mixture of start/end markers, "complete" events, etc.
+ * @see https://docs.google.com/document/d/1CvAClvFfyA5R-PhYUmn5OOQtYMH4h6I0nSsKchNAySU/preview
+ *
+ * LH's TaskNode is an artifact that fills in the gaps a trace event leaves behind.
+ * i.e. when did it end? which events are children/parents of this one?
+ *
+ * Each task will have its group/classification, start time, end time,
  * duration, and self time computed. Each task will potentially have a parent, children, and an
  * attributeableURL for the script that was executing/forced this execution.
  */

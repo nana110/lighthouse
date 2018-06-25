@@ -8,6 +8,8 @@ import parseManifest = require('../lighthouse-core/lib/manifest-parser.js');
 import _LanternSimulator = require('../lighthouse-core/lib/dependency-graph/simulator/simulator.js');
 import speedline = require('speedline');
 
+type _TaskNode = import('../lighthouse-core/gather/computed/main-thread-tasks').TaskNode;
+
 type LanternSimulator = InstanceType<typeof _LanternSimulator>;
 
 declare global {
@@ -121,6 +123,7 @@ declare global {
       requestNetworkRecords(devtoolsLog: DevtoolsLog): Promise<WebInspector.NetworkRequest[]>;
       requestPageDependencyGraph(data: {trace: Trace, devtoolsLog: DevtoolsLog}): Promise<Gatherer.Simulation.GraphNode>;
       requestPushedRequests(devtoolsLogs: DevtoolsLog): Promise<WebInspector.NetworkRequest[]>;
+      requestMainThreadTasks(trace: Trace): Promise<Artifacts.TaskNode[]>;
       requestTraceOfTab(trace: Trace): Promise<Artifacts.TraceOfTab>;
       requestScreenshots(trace: Trace): Promise<{timestamp: number, datauri: string}[]>;
       requestSpeedline(trace: Trace): Promise<LH.Artifacts.Speedline>;
@@ -143,6 +146,8 @@ declare global {
     }
 
     module Artifacts {
+      export type TaskNode = _TaskNode;
+
       export interface Accessibility {
         violations: {
           id: string;

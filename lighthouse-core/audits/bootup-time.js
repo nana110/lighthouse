@@ -6,11 +6,8 @@
 'use strict';
 
 const Audit = require('./audit');
-const TraceProcessor = require('../lib/traces/tracing-processor');
 const Util = require('../report/html/renderer/util');
 const {taskGroups} = require('../lib/task-groups');
-
-/** @typedef {import('../lib/traces/tracing-processor.js').TaskNode} TaskNode */
 
 class BootupTime extends Audit {
   /**
@@ -43,7 +40,7 @@ class BootupTime extends Audit {
   }
 
   /**
-   * @param {TaskNode[]} tasks
+   * @param {LH.Artifacts.TaskNode[]} tasks
    * @param {number} multiplier
    * @return {Map<string, Object<keyof taskGroups, number>>}
    */
@@ -55,8 +52,8 @@ class BootupTime extends Audit {
       if (!task.attributableURL || task.attributableURL === 'about:blank') continue;
 
       const timingByGroupId = result.get(task.attributableURL) || {};
-      const original = timingByGroupId[task.group.id] || 0;
-      timingByGroupId[task.group.id] = original + task.selfTime * multiplier;
+      const originalTime = timingByGroupId[task.group.id] || 0;
+      timingByGroupId[task.group.id] = originalTime + task.selfTime * multiplier;
       result.set(task.attributableURL, timingByGroupId);
     }
 
@@ -71,7 +68,7 @@ class BootupTime extends Audit {
   static async audit(artifacts, context) {
     const settings = context.settings || {};
     const trace = artifacts.traces[BootupTime.DEFAULT_PASS];
-    const tasks = TraceProcessor.getMainThreadTasks(trace.traceEvents);
+    const tasks = await artifacts.requestMainThreadTasks(trace);
     const multiplier = settings.throttlingMethod === 'simulate' ?
       settings.throttling.cpuSlowdownMultiplier : 1;
 
@@ -88,8 +85,8 @@ class BootupTime extends Audit {
 
         totalBootupTime += bootupTimeForURL;
 
-        const scriptingTotal = timingByGroupId[taskGroups.ScriptEvaluation.id] || 0;
-        const parseCompileTotal = timingByGroupId[taskGroups.ScriptParseCompile.id] || 0;
+        const scriptingTotal = timingByGroupId[taskGroups.scriptEvaluation.id] || 0;
+        const parseCompileTotal = timingByGroupId[taskGroups.scriptParseCompile.id] || 0;
 
         return {
           url: url,
@@ -107,9 +104,9 @@ class BootupTime extends Audit {
     const headings = [
       {key: 'url', itemType: 'url', text: 'URL'},
       {key: 'total', granularity: 1, itemType: 'ms', text: 'Total'},
-      {key: 'scripting', granularity: 1, itemType: 'ms', text: taskGroups.ScriptEvaluation.label},
+      {key: 'scripting', granularity: 1, itemType: 'ms', text: taskGroups.scriptEvaluation.label},
       {key: 'scriptParseCompile', granularity: 1, itemType: 'ms',
-        text: taskGroups.ScriptParseCompile.label},
+        text: taskGroups.scriptParseCompile.label},
     ];
 
     const details = BootupTime.makeTableDetails(headings, results, summary);

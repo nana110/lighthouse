@@ -18,12 +18,12 @@
  * @see https://cs.chromium.org/chromium/src/third_party/blink/renderer/devtools/front_end/timeline/TimelineUIUtils.js?type=cs&q=_initEventStyles+-f:out+f:devtools&sq=package:chromium&g=0&l=39
  */
 const taskGroups = {
-  ParseHTML: {
+  parseHTML: {
     id: '',
     label: 'Parse HTML & CSS',
     traceEventNames: ['ParseHTML', 'ParseAuthorStyleSheet'],
   },
-  StyleLayout: {
+  styleLayout: {
     id: '',
     label: 'Style & Layout',
     traceEventNames: [
@@ -36,7 +36,7 @@ const taskGroups = {
       'UpdateLayerTree',
     ],
   },
-  PaintCompositeRender: {
+  paintCompositeRender: {
     id: '',
     label: 'Rendering',
     traceEventNames: [
@@ -54,12 +54,12 @@ const taskGroups = {
       'CompositeLayers',
     ],
   },
-  ScriptParseCompile: {
+  scriptParseCompile: {
     id: '',
     label: 'Script Parsing & Compilation',
     traceEventNames: ['v8.compile', 'v8.compileModule', 'v8.parseOnBackground'],
   },
-  ScriptEvaluation: {
+  scriptEvaluation: {
     id: '',
     label: 'Script Evaluation',
     traceEventNames: [
@@ -74,7 +74,7 @@ const taskGroups = {
       'V8.Execute',
     ],
   },
-  GarbageCollection: {
+  garbageCollection: {
     id: '',
     label: 'Garbage Collection',
     traceEventNames: [
@@ -86,7 +86,7 @@ const taskGroups = {
       'BlinkGCMarking',
     ],
   },
-  Other: {
+  other: {
     id: '',
     label: 'Other',
     traceEventNames: [
@@ -99,18 +99,14 @@ const taskGroups = {
 
 /** @type {Object<string, TaskGroup>} */
 const taskNameToGroup = {};
-/** @type {Set<string>} */
-const traceEventNames = new Set();
 for (const [groupId, group] of Object.entries(taskGroups)) {
   group.id = groupId;
   for (const traceEventName of group.traceEventNames) {
     taskNameToGroup[traceEventName] = group;
-    traceEventNames.add(traceEventName);
   }
 }
 
 module.exports = {
   taskGroups,
   taskNameToGroup,
-  traceEventNames,
 };

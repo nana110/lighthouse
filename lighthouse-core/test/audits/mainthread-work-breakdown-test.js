@@ -17,30 +17,30 @@ const loadTrace = require('../fixtures/traces/load.json');
 const errorTrace = require('../fixtures/traces/airhorner_no_fcp.json');
 
 const acceptableTraceExpectations = {
-  ParseHTML: 14,
-  StyleLayout: 338,
-  PaintCompositeRender: 58,
-  ScriptEvaluation: 215,
-  ScriptParseCompile: 25,
-  GarbageCollection: 48,
-  Other: 663,
+  parseHTML: 14,
+  styleLayout: 338,
+  paintCompositeRender: 58,
+  scriptEvaluation: 215,
+  scriptParseCompile: 25,
+  garbageCollection: 48,
+  other: 663,
 };
 const siteWithRedirectTraceExpectations = {
-  ParseHTML: 84,
-  StyleLayout: 281,
-  PaintCompositeRender: 6,
-  ScriptEvaluation: 145,
-  ScriptParseCompile: 38,
-  GarbageCollection: 46,
-  Other: 184,
+  parseHTML: 84,
+  styleLayout: 281,
+  paintCompositeRender: 6,
+  scriptEvaluation: 145,
+  scriptParseCompile: 38,
+  garbageCollection: 46,
+  other: 184,
 };
 const loadTraceExpectations = {
-  ParseHTML: 25,
-  StyleLayout: 150,
-  PaintCompositeRender: 24,
-  ScriptEvaluation: 347,
-  GarbageCollection: 3,
-  Other: 382,
+  parseHTML: 25,
+  styleLayout: 150,
+  paintCompositeRender: 24,
+  scriptEvaluation: 347,
+  garbageCollection: 3,
+  other: 382,
 };
 
 describe('Performance: page execution timings audit', () => {

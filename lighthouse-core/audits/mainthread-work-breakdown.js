@@ -11,11 +11,8 @@
 'use strict';
 
 const Audit = require('./audit');
-const TraceProcessor = require('../lib/traces/tracing-processor');
 const Util = require('../report/html/renderer/util');
 const {taskGroups} = require('../lib/task-groups');
-
-/** @typedef {import('../lib/traces/tracing-processor.js').TaskNode} TaskNode */
 
 class MainThreadWorkBreakdown extends Audit {
   /**
@@ -45,7 +42,7 @@ class MainThreadWorkBreakdown extends Audit {
   }
 
   /**
-   * @param {TaskNode[]} tasks
+   * @param {LH.Artifacts.TaskNode[]} tasks
    * @param {number} multiplier
    * @return {Map<string, number>}
    */
@@ -54,7 +51,8 @@ class MainThreadWorkBreakdown extends Audit {
     const result = new Map();
 
     for (const task of tasks) {
-      result.set(task.group.id, (result.get(task.group.id) || 0) + task.selfTime * multiplier);
+      const originalTime = result.get(task.group.id) || 0;
+      result.set(task.group.id, originalTime + task.selfTime * multiplier);
     }
 
     return result;
@@ -69,7 +67,7 @@ class MainThreadWorkBreakdown extends Audit {
     const settings = context.settings || {};
     const trace = artifacts.traces[MainThreadWorkBreakdown.DEFAULT_PASS];
 
-    const tasks = TraceProcessor.getMainThreadTasks(trace.traceEvents);
+    const tasks = await artifacts.requestMainThreadTasks(trace);
     const multiplier = settings.throttlingMethod === 'simulate' ?
       settings.throttling.cpuSlowdownMultiplier : 1;
 
